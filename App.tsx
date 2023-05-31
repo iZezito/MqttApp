@@ -27,7 +27,7 @@ const options = {
 
 const client = new Paho.MQTT.Client(options.host, options.port, options.path);
 
-const App = () => {
+const App: React.FC = () => {
   const [temperature, setTemperature] = useState<number>(19);
   const [connected, setConnected] = useState<boolean>(false);
   const [publishing, setPublishing] = useState(false);
@@ -52,7 +52,6 @@ const App = () => {
   const mercuryHeight = (200 * fillPercentage) / 100;
 
   useEffect(() => {
-
     const onConnectionLost = (responseObject: any) => {
       if (responseObject.errorCode !== 0) {
         console.log('Connection lost:', responseObject.errorMessage);
@@ -150,7 +149,9 @@ const App = () => {
             </TouchableOpacity>
             <View style={styles.upperBulb} />
             <View style={styles.lowerBulb}>
-              <Text>{`${luminosityList[luminosityList.length - 1]}%`}</Text>
+              <Text style={{fontSize: 33}}>{`${
+                luminosityList[luminosityList.length - 1]
+              }%`}</Text>
             </View>
           </View>
         </View>
