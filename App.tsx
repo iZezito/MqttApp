@@ -37,10 +37,15 @@ const App: React.FC = () => {
     const [luminosityList, setLuminosityList] = useState<string[]>([]);
     const [lastButtonMessage, setLastButtonMessage] = useState<string>('');
     const [connecting, setConnecting] = useState<boolean>(false);
-    const [direcao, setDirecao] = useState<string>('right');
+    const [direcaoTemperatura, setDirecaoTemperatura] = useState<string>('right');
     const [mediaTemperatura, setMediaTemperatura] = useState<number>(0);
     const [corTemperatura, setCorTemperatura] = useState<string>('blue');
     const [porcentagemTemperatura, setPorcentagemTemperatura] = useState<string>('0%');
+    const [direcaoLuminosidade, setDirecaoLuminosidade] = useState<string>('right');
+    const [corLuminosidade, setCorLuminosidade] = useState<string>('blue');
+    const [porcentagemLuminosidade, setPorcentagemLuminosidade] = useState<string>('0%');
+
+
 
 
     const fillPercentage = Math.max(0, Math.min(100, (temperature / 40) * 100));
@@ -98,20 +103,39 @@ const App: React.FC = () => {
         setMediaTemperatura(parseFloat(media));
 
         if (diferenca < 0) {
-            setDirecao('down');
+            setDirecaoTemperatura('down');
             setCorTemperatura('red');
             setPorcentagemTemperatura(`-${Math.abs(diferenca)}%`);
         } else if (diferenca > 0) {
-            setDirecao('up');
+            setDirecaoTemperatura('up');
             setCorTemperatura('green');
             setPorcentagemTemperatura(`+${diferenca}%`);
         } else {
-            setDirecao('right');
+            setDirecaoTemperatura('right');
             setCorTemperatura('blue');
             setPorcentagemTemperatura(`${diferenca}%`);
         }
 
     }, [temperatureList]);
+
+    useEffect(() => {
+        const {diferenca} = calcularMediaeDiferenca(luminosityList);
+
+        if (diferenca < 0) {
+            setDirecaoLuminosidade('down');
+            setCorLuminosidade('red');
+            setPorcentagemLuminosidade(`-${Math.abs(diferenca)}%`);
+        } else if (diferenca > 0) {
+            setDirecaoLuminosidade('up');
+            setCorLuminosidade('green');
+            setPorcentagemLuminosidade(`+${diferenca}%`);
+        } else {
+            setDirecaoLuminosidade('right');
+            setCorLuminosidade('blue');
+            setPorcentagemLuminosidade(`${diferenca}%`);
+        }
+
+    }, [luminosityList]);
 
     const calcularMediaeDiferenca = (lista: string[]) => {
         const media = parseFloat((lista.reduce((a, b) => parseFloat(a) + parseFloat(b), 0) / lista.length)).toFixed(2);
@@ -168,7 +192,7 @@ const App: React.FC = () => {
                     <View style={styles.Card}>
                         <Text style={styles.CardTitle}>Temperatura</Text>
                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                            <Icon name={`arrow${direcao}`} size={10} color={corTemperatura}/>
+                            <Icon name={`arrow${direcaoTemperatura}`} size={10} color={corTemperatura}/>
                             <Text style={styles.CardText}>{`${temperature}°C`}</Text>
                             <Text style={[styles.CardText, {color: corTemperatura, fontSize: 7}]}>{porcentagemTemperatura}</Text>
                         </View>
@@ -176,9 +200,9 @@ const App: React.FC = () => {
                     <View style={styles.Card}>
                         <Text style={styles.CardTitle}>Luminosidade</Text>
                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                            {/*<Icon name="arrowup" size={10} color="green"/>*/}
+                            <Icon name={`arrow${direcaoLuminosidade}`} size={10} color={corLuminosidade}/>
                             <Text style={styles.CardText}>{`${luminosityList[luminosityList.length - 1]}%`}</Text>
-                            {/*<Text style={[styles.CardText,{color: corTemperatura, fontSize: 7}]}>{porcentagemTemperatura}%</Text>*/}
+                            <Text style={[styles.CardText,{color: corLuminosidade, fontSize: 7}]}>{porcentagemLuminosidade}</Text>
                         </View>
                     </View>
                 </View>
@@ -200,69 +224,17 @@ const App: React.FC = () => {
                         disabled={connecting}
                         onPress={connected ? () => client.disconnect() : connectToMqttServer}
                     />
-                    <Button
-                        title={
-                            publishing
-                                ? 'executando...'
-                                : `${lastButtonMessage === '0' ? 'Ligar' : 'Desligar'}`
-                        }
-                        onPress={publishMessage}
-                        disabled={!connected || publishing}
-                    />
+                    {/*<Button*/}
+                    {/*    title={*/}
+                    {/*        publishing*/}
+                    {/*            ? 'executando...'*/}
+                    {/*            : `${lastButtonMessage === '0' ? 'Ligar' : 'Desligar'}`*/}
+                    {/*    }*/}
+                    {/*    onPress={publishMessage}*/}
+                    {/*    disabled={!connected || publishing}*/}
+                    {/*/>*/}
                 </View>
             </SafeAreaView>
-            {/*<View style={styles.container2}>*/}
-            {/*  <View style={{flexDirection: 'row'}}>*/}
-            {/*    <View style={styles.glass}>*/}
-            {/*      <View*/}
-            {/*        style={[*/}
-            {/*          styles.mercury,*/}
-            {/*          {height: mercuryHeight, backgroundColor: barColor},*/}
-            {/*        ]}*/}
-            {/*      />*/}
-            {/*      <View style={[styles.bulb, {backgroundColor: bulbColor}]}>*/}
-            {/*        <Text style={styles.temperatureText}>*/}
-            {/*          {temperatureList[temperatureList.length - 1]}°C*/}
-            {/*        </Text>*/}
-            {/*      </View>*/}
-            {/*    </View>*/}
-            {/*    <View style={[styles.bulb2]}>*/}
-            {/*      <TouchableOpacity style={styles.bocal}>*/}
-            {/*        <View style={styles.stripe} />*/}
-            {/*        <View style={styles.stripe} />*/}
-            {/*        <View style={styles.stripe} />*/}
-            {/*      </TouchableOpacity>*/}
-            {/*      <View style={styles.upperBulb} />*/}
-            {/*      <View style={styles.lowerBulb}>*/}
-            {/*        <Text style={{fontSize: 33}}>{`${*/}
-            {/*          luminosityList[luminosityList.length - 1]*/}
-            {/*        }%`}</Text>*/}
-            {/*      </View>*/}
-            {/*    </View>*/}
-            {/*  </View>*/}
-            {/*</View>*/}
-            {/*<View style={styles.container}>*/}
-            {/*  <Button*/}
-            {/*    title={*/}
-            {/*      connecting*/}
-            {/*        ? 'Conectando...'*/}
-            {/*        : connected*/}
-            {/*        ? 'Desconectar'*/}
-            {/*        : 'Conectar'*/}
-            {/*    }*/}
-            {/*    disabled={connecting ? true : false}*/}
-            {/*    onPress={connected ? () => client.disconnect() : connectToMqttServer}*/}
-            {/*  />*/}
-            {/*  <Button*/}
-            {/*    title={*/}
-            {/*      publishing*/}
-            {/*        ? 'executando...'*/}
-            {/*        : `${lastButtonMessage === '0' ? 'Ligar' : 'Desligar'}`*/}
-            {/*    }*/}
-            {/*    onPress={publishMessage}*/}
-            {/*    disabled={!connected || publishing}*/}
-            {/*  />*/}
-            {/*</View>*/}
         </>
     );
 };
@@ -310,129 +282,5 @@ const styles = StyleSheet.create({
         }
     }
 )
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 2,
-//     paddingTop: 70,
-//     paddingHorizontal: 16,
-//   },
-//   messageBox: {
-//     marginBottom: 16,
-//   },
-//   heading: {
-//     fontSize: 18,
-//     fontWeight: 'bold',
-//     marginBottom: 8,
-//   },
-//   messageComponent: {
-//     marginBottom: 5,
-//     backgroundColor: '#0075e2',
-//     padding: 5,
-//     borderRadius: 3,
-//   },
-//   textMessage: {
-//     color: 'white',
-//     fontSize: 16,
-//   },
-//   container2: {
-//     flex: 8,
-//     alignItems: 'flex-start',
-//     justifyContent: 'center',
-//     borderRadius: 10,
-//     paddingVertical: 10,
-//     paddingHorizontal: 5,
-//   },
-//   glass: {
-//     width: 30,
-//     height: 200,
-//     borderRadius: 15,
-//     backgroundColor: '#a4a4a4',
-//     borderWidth: 1,
-//     borderColor: '#CCCCCC',
-//     overflow: 'hidden',
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//   },
-//   mercury: {
-//     position: 'absolute',
-//     bottom: 30,
-//     left: '35%',
-//     width: 10,
-//   },
-//   bulb: {
-//     position: 'absolute',
-//     bottom: 0,
-//     left: '1%',
-//     width: 30,
-//     height: 30,
-//     borderRadius: 15,
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//   },
-//   temperatureText: {
-//     color: '#FFFFFF',
-//     fontSize: 12,
-//     fontWeight: 'bold',
-//   },
-//   bulb3: {
-//     width: 100,
-//     height: 150,
-//     borderRadius: 50,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     alignSelf: 'center',
-//     backgroundColor: '#FFFF00',
-//     // width: 100,
-//     // left: '100%',
-//     // height: 150,
-//     // borderRadius: 50,
-//     // justifyContent: 'flex-start',
-//     // alignItems: 'center',
-//     // alignSelf: 'center',
-//   },
-//   bocal: {
-//     borderWidth: 1,
-//     borderColor: '#000000',
-//     width: 50,
-//     height: 30,
-//     borderRadius: 10,
-//     backgroundColor: '#FFFFFF',
-//     marginTop: -20,
-//     flexDirection: 'column',
-//     justifyContent: 'space-between',
-//     alignItems: 'flex-start',
-//   },
-//   stripe: {
-//     width: 48,
-//     height: 3,
-//     backgroundColor: 'black',
-//   },
-//   bulb2: {
-//     left: '100%',
-//     width: 80,
-//     height: 100,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     alignSelf: 'center', // Cor de fundo da lâmpada
-//   },
-//   upperBulb: {
-//     width: 45,
-//     height: 30,
-//     backgroundColor: '#FFFF00', // Cor de fundo da parte de cima
-//   },
-//   lowerBulb: {
-//     width: 80,
-//     marginTop: -8,
-//     height: 75,
-//     borderBottomLeftRadius: 87.5,
-//     borderBottomRightRadius: 87.5,
-//     borderTopLeftRadius: 87.5,
-//     borderTopRightRadius: 87.5,
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//     backgroundColor: '#FFFF00', // Cor de fundo da parte de baixo
-//   },
-// });
 
 export default App;
